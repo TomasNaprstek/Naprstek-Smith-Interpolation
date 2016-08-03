@@ -1,0 +1,2 @@
+MENU "&Naprstek-Smith Interpolation" 
+ITEM "&Naprstek-Smith"	,NaprstekSmith.dll(NaprstekDLL_V19.Execute;Main)
