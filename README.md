@@ -1,5 +1,6 @@
 # Naprstek-Smith-Interpolation
 Interpolation method developed by Tomas Naprstek and Richard Smith.
 
-For further information, email tomas@tomasnaprstek.org
-Paper currently under review.
+Files working with Geosoft's OAsis Montaj V8.5.
+
+For further information, email tomas@tomasnaprstek.org.
