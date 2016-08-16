@@ -1,2 +1,2 @@
-MENU "&NaprstekSmithGridding" 
+MENU "&Naprstek-Smith Gridding" 
 ITEM "&Naprstek-Smith V1"	,NaprstekSmith.dll(NaprstekSmith.Execute;Main)
