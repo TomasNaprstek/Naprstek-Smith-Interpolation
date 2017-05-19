@@ -1,0 +1,2 @@
+MENU "&NSI Interpolation" 
+ITEM "&Naprstek-Smith V4"	,NaprstekSmithV4.dll(NaprstekSmithV4.Execute;Main)
