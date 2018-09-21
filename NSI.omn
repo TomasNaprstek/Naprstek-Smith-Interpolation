@@ -1,0 +1,2 @@
+MENU "&NSI Interpolation"
+ITEM "&Naprstek-Smith V15"	,NaprstekSmithV15.dll(NaprstekSmithV15.Execute;Main)
