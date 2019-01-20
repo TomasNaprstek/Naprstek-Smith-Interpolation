@@ -2,7 +2,7 @@
 Interpolation method developed by Tomas Naprstek and Richard Smith.
 Last updated January 2019
 
-Run NSI_V4.cs in a C# compiler (Visual Studio recommended) to use the method as is. All source code is in this file. Comments in code and description of method in paper should suffice to be able to run, however if any other help is needed, or for further information contact: tnaprstek@laurentian.ca
+Run NSI_V5.cs in a C# compiler (Visual Studio recommended) to use the method as is. All source code is in this file. Comments in code and description of method in paper should suffice to be able to run, however if any other help is needed, or for further information contact: tnaprstek@laurentian.ca
 
 A test file, BaseModel1-250mInterval-1nTNoise.txt is included in the GitHub repository. If the C# code is run as is, it will run on the BaseModel file. This synthetic dataset was developed using PyGMI: Cole, P., 2015, PyGMI, https://github.com/Patrick-Cole/pygmi, accessed 20 October 2015.
 
