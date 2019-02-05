@@ -1,6 +1,8 @@
 # Naprstek-Smith Interpolation
 Interpolation method developed by Tomas Naprstek and Richard Smith.
-Last updated January 2019
+Last updated February 2019
+
+Associated source code for the paper (currently pre-print): Tomas Naprstek and Richard S. Smith A new method for interpolating linear features in aeromagnetic data. GEOPHYSICS. https://library.seg.org/doi/10.1190/geo2018-0156.1
 
 Run NSI_V5.cs in a C# compiler (Visual Studio recommended) to use the method as is. All source code is in this file. Comments in code and description of method in paper should suffice to be able to run, however if any other help is needed, or for further information contact: tnaprstek@laurentian.ca
 
