@@ -1,5 +1,6 @@
-# Naprstek-Smith Interpolation
+# Naprstek-Smith Interpolation Method ("Multi-trend interpolation")
 Interpolation method developed by Tomas Naprstek and Richard Smith.
+
 Last updated February 2019
 
 Associated source code for the paper (currently pre-print): Tomas Naprstek and Richard S. Smith A new method for interpolating linear features in aeromagnetic data. GEOPHYSICS. https://library.seg.org/doi/10.1190/geo2018-0156.1
