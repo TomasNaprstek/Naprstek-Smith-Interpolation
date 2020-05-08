@@ -1,4 +1,4 @@
-# Naprstek-Smith Interpolation Method ("Multi-trend interpolation")
+# Naprstek Smith 2019 Interpolation Method ("Multi-trend gridding")
 Interpolation method developed by Tomas Naprstek and Richard Smith.
 
 Last updated February 2019
