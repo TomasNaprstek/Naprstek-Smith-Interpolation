@@ -7,11 +7,11 @@ NOTE: Below is the order for the MTG_config.txt file when running the stand-alon
 %%%%%%
 Input file name: the name of the grid to be input. The file MUST be in a tab-delimited format, in the order "x position - y position - value - line#".
 
-Interpolation cell size: This is the size of the grid cells during the interpolation. We generally recommend that the interpolation size be 0.5*Output cell size, as this can help smooth out the data. However, this can also lead to weak lineaments not trending all the way between two flight lines, as they now have "further" to trend. We recommend experimentation, but in general this value should be the same as the output cell size, or half the size.
+Interpolation cell size: This is the size of the grid cells during the interpolation. We generally recommend that the interpolation size be 0.5*Output cell size, as this can help smooth out the data. However, this can also lead to weak lineaments not trending all the way between two flight lines, as they now have "further" to trend. We recommend experimentation, but in general this value should be half the size, or at most, the same as the output cell size.
 
 Output cell size: This is the size of the grid cells at the end of the interpolation. This should follow standard aeromagnetic interpolation rules, and be kept at one-quarter to one-fifth the flight line spacing.
 
-Interpolation distance: Essentially, this determines how "far" the method will search for real data when completing the normalization step. In general we recommend setting this to 50-75% of the flight line spacing. However, if a trend is at a highly acute angle to the flight lines, then it would require a much larger interpolation distance.
+Interpolation distance: Essentially, this determines how "far" the method will search for real data when completing the normalization step. In general we recommend setting this to 75-100% of the flight line spacing. However, if a trend is at a highly acute angle to the flight lines, then it would require a much larger interpolation distance.
 
 Maximum number of iterations: The maximum number of iterations that you wish the interpolation method to go through. This will depend highly on the dataset, but in general somewhere between 50 and 100 is enough, particularly when the automatic stopping criteria is used.
 
