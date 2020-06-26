@@ -1,7 +1,7 @@
 # Naprstek Smith Interpolation Method ("Multi-trend gridding")
 Last updated June 2020
 
-This project holds the code for an interpolation method designed for use on aeromagnetic data. Its primary strength lies in its ability to strongly interpolate thin, linear features across flight lines, even wen they are at acute angles (normally an issue for most other interpolation methods). It can be used as a general interpolation method as well, leading to results similar to minimum curvature.
+This project holds the code for an interpolation method designed for use on aeromagnetic data. Its primary strength lies in its ability to strongly interpolate thin, linear features across flight lines, even when they are at acute angles (normally an issue for most other interpolation methods). It can be used as a general interpolation method as well, leading to results similar to minimum curvature.
 
 This is the code associated with the paper, Tomas Naprstek and Richard S. Smith, (2019), "A new method for interpolating linear features in aeromagnetic data," GEOPHYSICS 84: JM15-JM24. https://library.seg.org/doi/10.1190/geo2018-0156.1
 
