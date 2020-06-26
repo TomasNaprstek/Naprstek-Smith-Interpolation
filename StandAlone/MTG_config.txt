@@ -1,0 +1,9 @@
+BaseModel1-250mInterval-1nTNoise.txt
+50
+50
+125
+75
+100
+0
+10
+1
