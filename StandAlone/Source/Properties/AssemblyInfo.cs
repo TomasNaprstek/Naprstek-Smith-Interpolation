@@ -5,11 +5,11 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("NSI_V6")]
+[assembly: AssemblyTitle("NSI_V7")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("NSI_V6")]
+[assembly: AssemblyProduct("NSI_V7")]
 [assembly: AssemblyCopyright("Copyright ©  2020")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
@@ -20,7 +20,7 @@ using System.Runtime.InteropServices;
 [assembly: ComVisible(false)]
 
 // The following GUID is for the ID of the typelib if this project is exposed to COM
-[assembly: Guid("0f171115-0dd8-4e96-81b2-7335cd0e2a87")]
+[assembly: Guid("c340fb28-6fba-4d16-9f8c-241587479783")]
 
 // Version information for an assembly consists of the following four values:
 //

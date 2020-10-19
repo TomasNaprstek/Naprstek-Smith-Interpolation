@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using System.IO;
 using System.Windows.Forms;
 
-namespace NSI_V6
+namespace NSI_V7
 {
     public static class Globals
     {
@@ -21,6 +21,7 @@ namespace NSI_V6
         public static bool autoStop = true; //a checkbox of whether or not to auto stop
         public static double angleSearch = 10; //the number of degrees it will move each time when searching away from the initial eigenvector
         public static double multiSmooth = 0; //smooth the multiplier grid before applying the normalization process (0 is no smoothing, 100 is max smoothing) (%)
+        public static bool spatialSmooth = true; //a checkbox of whether or not to use spatial smoothing (in almost all cases, should be used)
         //*********************
     }
 
@@ -68,10 +69,41 @@ namespace NSI_V6
         }
     }
 
-    class NSI_V5
+    class NSI_V6
     {
         static void Main()
         {
+            //**********READ CONFIG FILE
+            FileStream readConfig = new FileStream("MTG_config.txt", FileMode.Open, FileAccess.Read);
+            StreamReader readerConfig = new StreamReader(readConfig);
+            Globals.inputFile = readerConfig.ReadLine();
+            Globals.cellSize = Convert.ToDouble(readerConfig.ReadLine());
+            Globals.cellSizeF = Convert.ToDouble(readerConfig.ReadLine());
+            Globals.interpDist = Convert.ToDouble(readerConfig.ReadLine());
+            Globals.maxLoop = Convert.ToInt32(readerConfig.ReadLine());
+            Globals.trendM = Convert.ToDouble(readerConfig.ReadLine());
+            Globals.multiSmooth = Convert.ToDouble(readerConfig.ReadLine());
+            Globals.angleSearch = Convert.ToDouble(readerConfig.ReadLine());
+            double autostopcheck = Convert.ToDouble(readerConfig.ReadLine());
+            if (autostopcheck == 1)
+            {
+                Globals.autoStop = true;
+            }
+            else
+            {
+                Globals.autoStop = false;
+            }
+            double spatialsmoothing = Convert.ToDouble(readerConfig.ReadLine());
+            if (spatialsmoothing == 1)
+            {
+                Globals.spatialSmooth = true;
+            }
+            else
+            {
+                Globals.spatialSmooth = false;
+            }
+            readConfig.Close();
+
             //**********IMPORT GRID
             Console.WriteLine("Importing Data");
             string temp;
@@ -195,7 +227,7 @@ namespace NSI_V6
                     int[] yLoop = new int[8] { 0, 1, 1, 1, 0, -1, -1, -1 };
                     bool complete = false;
                     double closeDistVal = 0;
-                    double closeDist = Globals.interpDist + 1;
+                    double closeDist = (Globals.interpDist / Globals.cellSize) + 1;
                     int closeDistNum = 0;
 
                     for (int k = 0; k < 8; k++)
@@ -590,8 +622,16 @@ namespace NSI_V6
                                     {
                                         if (gridedDataDerivIterate.Flag[i + m, j + n] != -1) //There needs to be data available within the grid
                                         {
-                                            successValues.Add(gridedDataDerivIterate.Value[i + m, j + n] - (m * fx) - (n * fy) - 0.5 * ((fxx * Math.Pow(m, 2)) + (2 * m * n * fxy) + (fyy * Math.Pow(n, 2))));
-                                            numOfSuccess++;
+                                            if (Globals.spatialSmooth == true) //if using spatial-based smoothing, then do the standard calculation
+                                            {
+                                                successValues.Add(gridedDataDerivIterate.Value[i + m, j + n] - (m * fx) - (n * fy) - 0.5 * ((fxx * Math.Pow(m, 2)) + (2 * m * n * fxy) + (fyy * Math.Pow(n, 2))));
+                                                numOfSuccess++;
+                                            }
+                                            else //if not, then remove the spatial aspect. This essentially turns this step into a 3x3 alpha-trimmed mean.
+                                            {
+                                                successValues.Add(gridedDataDerivIterate.Value[i + m, j + n]);
+                                                numOfSuccess++;
+                                            }
                                         }
                                     }
                                 }
@@ -1602,7 +1642,16 @@ namespace NSI_V6
             //***********************************
 
             //*****************************OUTPUT
-            string outputFile = Globals.inputFile + "-" + Globals.cellSize + "m" + Globals.cellSizeF + "m" + Globals.interpDist + "m" + currentLoop + "x" + Globals.trendM + "t" + Globals.multiSmooth + "s" + Globals.angleSearch + "Th" + ".txt";
+            string spsm = "";
+            if (Globals.spatialSmooth == true)
+            {
+                spsm = "Sy";
+            }
+            else
+            {
+                spsm = "Sn";
+            }
+            string outputFile = Globals.inputFile + "-" + Globals.cellSize + "m" + Globals.cellSizeF + "m" + Globals.interpDist + "m" + currentLoop + "x" + Globals.trendM + "t" + Globals.multiSmooth + "s" + Globals.angleSearch + "Th" + spsm + ".txt";
             System.IO.StreamWriter myfile2 = new System.IO.StreamWriter(outputFile, true);
             //file.setprecision(10); //Set the precision of the output data to 10 sig digs. Do this to not allow incorrect values in sci notation.
             for (int i = 0; i < lengthXF; i++)

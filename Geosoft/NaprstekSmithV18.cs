@@ -11,7 +11,7 @@ using Geosoft.GX.Controls;
 using Geosoft.Desktop.GXNet;
 using CoreConstant = GeoEngine.Core.GXNet.Constant;
 
-namespace NaprstekSmithV17
+namespace NaprstekSmithV18
 {
     static class Globals
     {
@@ -31,6 +31,7 @@ namespace NaprstekSmithV17
         public static double angleSearch = 10; //the number of degrees it will move each time when searching away from the initial eigenvector
         public static double extendPastEdge = 1; //extend past the edge of the min/max of the grid this many cells
         public static double multiSmooth = 0; //smooth the multiplier grid before applying the normalization process (0 is no smoothing, 100 is max smoothing) (%)
+        public static bool spatialSmooth = true; //a checkbox of whether or not to use spatial smoothing (in almost all cases, should be used)
         //*********************
     }
 
@@ -264,14 +265,24 @@ namespace NaprstekSmithV17
             inputBox.Controls.Add(textBox10);
 
             //AUTOSTOP CHECKBOX
-            Label textLabel10 = new Label() { Left = 25, Top = 335, Text = "Use automatic stopping criteria?" };
-            textLabel10.Size = new System.Drawing.Size(size.Width - 30, 23);
+            Label textLabel10 = new Label() { Left = 25, Top = 340, Text = "Automatic stopping?" };
+            textLabel10.Size = new System.Drawing.Size(140, 23);
             inputBox.Controls.Add(textLabel10);
 
             System.Windows.Forms.CheckBox chkbxAuto = new CheckBox();
             chkbxAuto.Location = new System.Drawing.Point(5, 335);
             chkbxAuto.Checked = Globals.autoStop;
             inputBox.Controls.Add(chkbxAuto);
+
+            //SPATIAL SMOOTHING CHECKBOX
+            Label textLabel13 = new Label() { Left = 195, Top = 340, Text = "Spatial Smoothing?" };
+            textLabel13.Size = new System.Drawing.Size(160, 23);
+            inputBox.Controls.Add(textLabel13);
+
+            System.Windows.Forms.CheckBox chkbxSpatial = new CheckBox();
+            chkbxSpatial.Location = new System.Drawing.Point(175, 335);
+            chkbxSpatial.Checked = Globals.autoStop;
+            inputBox.Controls.Add(chkbxSpatial);
 
             //BUTTONS
             Button okButton = new Button();
@@ -306,6 +317,7 @@ namespace NaprstekSmithV17
             Globals.angleSearch = Convert.ToDouble(textBox10.Text);
             Globals.multiSmooth = Convert.ToDouble(textBox12.Text);
             Globals.autoStop = chkbxAuto.Checked;
+            Globals.spatialSmooth = chkbxSpatial.Checked;
             return result;
         }
 
@@ -591,7 +603,7 @@ namespace NaprstekSmithV17
                     int[] yLoop = new int[8] { 0, 1, 1, 1, 0, -1, -1, -1 };
                     bool complete = false;
                     double closeDistVal = 0;
-                    double closeDist = Globals.interpDist + 1;
+                    double closeDist = (Globals.interpDist / Globals.cellSize) + 1;
                     int closeDistNum = 0;
 
                     for (int k = 0; k < 8; k++)
@@ -675,7 +687,7 @@ namespace NaprstekSmithV17
                     if (gridedData.Flag[i, j] != 1) //if this was not a real data cell then assign the values
                     {
                         //Now need to find closest real data and assign its value to the current cell.
-                        if (closeDist != Globals.interpDist + 1)
+                        if (closeDist != (Globals.interpDist / Globals.cellSize) + 1)
                         {
                             gridedData.Value[i, j] = closeDistVal / closeDistNum;
                             gridedData.Flag[i, j] = 0;
@@ -987,8 +999,16 @@ namespace NaprstekSmithV17
                                     {
                                         if (gridedDataDerivIterate.Flag[i + m, j + n] != -1) //There needs to be data available within the grid
                                         {
-                                            successValues.Add(gridedDataDerivIterate.Value[i + m, j + n] - (m * fx) - (n * fy) - 0.5 * ((fxx * Math.Pow(m, 2)) + (2 * m * n * fxy) + (fyy * Math.Pow(n, 2))));
-                                            numOfSuccess++;
+                                            if (Globals.spatialSmooth == true) //if using spatial-based smoothing, then do the standard calculation
+                                            {
+                                                successValues.Add(gridedDataDerivIterate.Value[i + m, j + n] - (m * fx) - (n * fy) - 0.5 * ((fxx * Math.Pow(m, 2)) + (2 * m * n * fxy) + (fyy * Math.Pow(n, 2))));
+                                                numOfSuccess++;
+                                            }
+                                            else //if not, then remove the spatial aspect. This essentially turns this step into a 3x3 alpha-trimmed mean.
+                                            {
+                                                successValues.Add(gridedDataDerivIterate.Value[i + m, j + n]);
+                                                numOfSuccess++;
+                                            }
                                         }
                                     }
                                 }
@@ -1781,7 +1801,7 @@ namespace NaprstekSmithV17
 
                                 //now to enact the sliding scale, add 100 minus the smoother amount number of values of the original mutlitplier
                                 //e.g. 1 will add 100, 100 will add only 1
-                                for (int k = 0; k < 101-Globals.multiSmooth; k++)
+                                for (int k = 0; k < 101 - Globals.multiSmooth; k++)
                                 {
                                     points.Add(iMultCells[i, j]);
                                 }
@@ -1791,7 +1811,7 @@ namespace NaprstekSmithV17
                         }
                     }
                 }
-                
+
                 //Apply the normalization
                 for (int i = 0; i < lengthX; i++)
                 {
@@ -2007,7 +2027,20 @@ namespace NaprstekSmithV17
             CSYS.Progress(1);
             CSYS.ProgName("Writing ASCII grid file.", 0);
 
-            Globals.outputFile = Globals.inputFile + "-" + Globals.cellSize + "m" + Globals.cellSizeF + "m" + Globals.interpDist + "m" + currentLoop + "x" + Globals.trendM + "t" + Globals.multiSmooth + "s" + Globals.angleSearch + "Th" + ".txt";
+            string spsm = "";
+            string spsmtxt = "";
+            if (Globals.spatialSmooth == true)
+            {
+                spsm = "Sy";
+                spsmtxt = "True";                
+            }
+            else
+            {
+                spsm = "Sn";
+                spsmtxt = "False";
+            }
+
+            Globals.outputFile = Globals.inputFile + "-" + Globals.cellSize + "m" + Globals.cellSizeF + "m" + Globals.interpDist + "m" + currentLoop + "x" + Globals.trendM + "t" + Globals.multiSmooth + "s" + Globals.angleSearch + "Th" + spsm + ".txt";
             System.IO.StreamWriter myfile2 = new System.IO.StreamWriter(Globals.outputFile, true);
             //file. setprecision(10); //Set the precision of the output data to 10 sig digs. Do this to not allow incorrect values in sci notation.
 
@@ -2019,8 +2052,8 @@ namespace NaprstekSmithV17
             myfile2.WriteLine("Using Geosoft's Oasis Montaj, enter the following information into: 'Grid and Image'->'Utilities'->'Import ASCII Grid...'.");
             myfile2.WriteLine("***************************************");
             myfile2.WriteLine("ASCII Grid File: " + Globals.outputFile);
-            myfile2.WriteLine("Output grid file (*.grd): " + Globals.inputFile + "-" + Globals.cellSize + "m" + Globals.cellSizeF + "m" + Globals.interpDist + "m" + currentLoop + "x" + Globals.trendM + "t" + Globals.multiSmooth + "s" + Globals.angleSearch + "Th");
-            myfile2.WriteLine("Number of ASCII lines to skip: 20");
+            myfile2.WriteLine("Output grid file (*.grd): " + Globals.inputFile + "-" + Globals.cellSize + "m" + Globals.cellSizeF + "m" + Globals.interpDist + "m" + currentLoop + "x" + Globals.trendM + "t" + Globals.multiSmooth + "s" + Globals.angleSearch + "Th" + spsm);
+            myfile2.WriteLine("Number of ASCII lines to skip: 21");
             myfile2.WriteLine("Numper of points in each row: " + lengthYF);
             myfile2.WriteLine("Number of rows: " + lengthXF);
             myfile2.WriteLine("Row orientation: Left bottom to top");
@@ -2034,6 +2067,7 @@ namespace NaprstekSmithV17
             myfile2.WriteLine("Trending Factor: " + Globals.trendM);
             myfile2.WriteLine("Multiplier grid smoother: " + Globals.multiSmooth);
             myfile2.WriteLine("Theta: " + Globals.angleSearch);
+            myfile2.WriteLine("Spatial smoothing: " + spsmtxt);
             myfile2.WriteLine("***************************************");
             //loop for making the ascii grid file
             for (int i = 0; i < lengthXF; i++)
