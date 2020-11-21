@@ -313,7 +313,7 @@ namespace NSI_V7
                     if (gridedData.Flag[i, j] != 1) //if this was not a real data cell then assign the values
                     {
                         //Now need to find closest real data and assign its value to the current cell.
-                        if (closeDist != Globals.interpDist + 1)
+                        if (closeDist != (Globals.interpDist / Globals.cellSize) + 1)
                         {
                             gridedData.Value[i, j] = closeDistVal / closeDistNum;
                             gridedData.Flag[i, j] = 0;
