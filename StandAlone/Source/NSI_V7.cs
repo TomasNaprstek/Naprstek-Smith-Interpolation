@@ -1728,12 +1728,12 @@ namespace NSI_V7
                     myfile2.WriteLine("nodata_value -999999");
                     
                     //loop for making the ascii grid file
-                    for (int i = 0; i < lengthXF; i++)
+                    for (int i = lengthYF-1; i >= 0; i--)
                     {
                         string tempLine = "";
-                        for (int j = 0; j < lengthYF; j++)
+                        for (int j = 0; j < lengthXF; j++)
                         {
-                            tempLine = tempLine + finalData.Value[i, j] + "\t";
+                            tempLine = tempLine + finalData.Value[j, i] + "\t";
                         }
                         myfile2.WriteLine(tempLine);
                     }
