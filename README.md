@@ -11,7 +11,7 @@ If you use this interpolation method for any publications, please cite the above
 **STAND-ALONE USAGE**
 %%%%%%%%
 
-Download all three files in the "StandAlone" folder. Edit the "MTG_config.txt" to define user variables (see "User Variables.txt"), and run NSI_V7.exe to execute. All source C# code is included.
+Download all files in the "StandAlone" folder. Edit the "MTG_config.txt" to define user variables (see "User Variables.txt"), and run NSI_V7.exe to execute. All source C# code is included.
 
 A test file, BaseModel1-250mInterval-1nTNoise.txt is included in the GitHub repository. If the executable or C# code is run as is, it will run on the BaseModel file. This synthetic dataset was developed using PyGMI: Cole, P., 2015, PyGMI, https://github.com/Patrick-Cole/pygmi, accessed 20 October 2015. For comparison, the "AllValues" version contains all data points of the synthetic dataset, before the 250m flight line subsampling was applied.
 
