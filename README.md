@@ -11,7 +11,7 @@ If you use this interpolation method for any publications, please cite the above
 **STAND-ALONE USAGE**
 %%%%%%%%
 
-Download all three files in the "StandAlone" folder. Edit the "MTG_config.txt" to define user variables (see "User Variables.txt"), and run NSI_V7.exe to execute. All source C# code is included.
+Download all files in the "StandAlone" folder. Edit the "MTG_config.txt" to define user variables (see "User Variables.txt"), and run NSI_V7.exe to execute. All source C# code is included.
 
 A test file, BaseModel1-250mInterval-1nTNoise.txt is included in the GitHub repository. If the executable or C# code is run as is, it will run on the BaseModel file. This synthetic dataset was developed using PyGMI: Cole, P., 2015, PyGMI, https://github.com/Patrick-Cole/pygmi, accessed 20 October 2015. For comparison, the "AllValues" version contains all data points of the synthetic dataset, before the 250m flight line subsampling was applied.
 
@@ -19,6 +19,6 @@ A test file, BaseModel1-250mInterval-1nTNoise.txt is included in the GitHub repo
 **GEOSOFT DLL USAGE**
 %%%%%%%%
 
-NOTE: As of Oasis Montaj Version 9.9, Multi-trend gridding is now one of the standard interpolation methods within Oasis Montaj. If you have access to it, I recommend using the built-in version rather than this custom dll version (they are the same, but the built-in version is more integrated into Oasis Montaj).
+**NOTE: As of Oasis Montaj Version 9.9, Multi-trend gridding is now one of the standard interpolation methods within Oasis Montaj. If you have access to it, I recommend using the built-in version rather than this custom dll version (they are the same, but the built-in version is more integrated into Oasis Montaj).**
 
 Also included in the GitHub repository is a dll and omn file for running the method as a custom menu in Oasis Montaj. Files tested and working with Geosoft's Oasis Montaj V9 (will not work on previous versions!). Follow the instructions given on Geosoft’s support site for importing custom menus, using the NaprstekSmithV19.dll and MTG.omn files. This will allow the creation of a new menu inside of Oasis Montaj. Once run, the plugin will output a .txt file that can be used in the “Import ASCII Grid…” option under the “Grid and Image”, “Utilities” menu. Information regarding the importing process is written at the top of the output file.
