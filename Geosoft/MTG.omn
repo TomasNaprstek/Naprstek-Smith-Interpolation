@@ -1,2 +1,2 @@
 MENU "&Multi-trend gridding" 
-ITEM "&Multi-trend gridding V18"	,NaprstekSmithV18.dll(NaprstekSmithV18.Execute;Main)
+ITEM "&Multi-trend gridding V19"	,NaprstekSmithV19.dll(NaprstekSmithV19.Execute;Main)

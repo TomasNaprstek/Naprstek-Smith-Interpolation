@@ -11,7 +11,7 @@ using Geosoft.GX.Controls;
 using Geosoft.Desktop.GXNet;
 using CoreConstant = GeoEngine.Core.GXNet.Constant;
 
-namespace NaprstekSmithV18
+namespace NaprstekSmithV19
 {
     static class Globals
     {
@@ -732,21 +732,35 @@ namespace NaprstekSmithV18
                 }
             }
 
-            if (minVal < 0)
+            //Need to add some positive DC offset to ensure no division by 0 (if 0s exist in this dataset)
+            double dcoffset = 0;
+            if (minVal < 1)
             {
-                //once found, add this amount to each data point
+                dcoffset = 100;
+                //add this to the dataset
                 for (int i = 0; i < lengthX; i++)
                 {
                     for (int j = 0; j < lengthY; j++)
                     {
                         if (gridedData.Flag[i, j] != -1)
                         {
-                            gridedData.Value[i, j] = gridedData.Value[i, j] + Math.Abs(minVal);
+                            gridedData.Value[i, j] = gridedData.Value[i, j] + dcoffset;
+                            if (minVal < 0) //also add minvalue to get the lowest value in the dataset to 100
+                            {
+                                gridedData.Value[i, j] = gridedData.Value[i, j] + Math.Abs(minVal);
+                            }
                         }
                     }
                 }
-                maxVal = maxVal + Math.Abs(minVal); //also add the minVal to the maxVal so can use it properly later on
             }
+
+            //also add the minVal and DC offset to the maxVal so can use it properly later on
+            if (minVal < 0)
+            {
+                maxVal = maxVal + Math.Abs(minVal); 
+            }
+            maxVal = maxVal + dcoffset;
+            
             //***********************************
 
             //*****************ALPHA-TRIMMED MEAN
@@ -1831,6 +1845,10 @@ namespace NaprstekSmithV18
                             {
                                 tempMR = maxVal;
                             }
+                            else if (tempMR < minVal+dcoffset) //do not let the scaled data become less than the min value (+ DC offset) found in the raw data
+                            {
+                                tempMR = minVal + dcoffset;
+                            }
                             realReplace.Value[i, j] = tempMR; //replace with scaled data
                             realReplace.Flag[i, j] = 0; //not real
                         }
@@ -1900,6 +1918,27 @@ namespace NaprstekSmithV18
             CSYS.Progress(0);
             //***********************************
 
+            //*******************SUBTRACT MIN VAL
+            //Subtract off the min val found earlier, as well as the DC offset
+            if (minVal < 1)
+            {
+                for (int i = 0; i < lengthX; i++)
+                {
+                    for (int j = 0; j < lengthY; j++)
+                    {
+                        if (realReplace.Flag[i, j] != -1)
+                        {
+                            realReplace.Value[i, j] = realReplace.Value[i, j] - dcoffset;
+                            if (minVal < 0)
+                            {
+                                realReplace.Value[i, j] = realReplace.Value[i, j] - Math.Abs(minVal);
+                            }
+                        }
+                    }
+                }
+            }
+            //***********************************
+
             //**************************SUBSAMPLE
             CSYS.Progress(1);
             CSYS.ProgName("Resampling Pt 1", 0);
@@ -1935,14 +1974,7 @@ namespace NaprstekSmithV18
                 tempYF[xPos, yPos] += Y[k] - ypositf[xPos, yPos]; //Add the y pos of that reading to the cell.
                 //tempXF[xPos, yPos] = ((xPos * Globals.cellSizeF) + minX + (Globals.cellSizeF / 2)); //Essentially round the position to the center of the cell
                 //tempYF[xPos, yPos] = ((yPos * Globals.cellSizeF) + minY + (Globals.cellSizeF / 2)); //Essentially round the position to the center of the cell
-                if (minVal < 0)
-                {
-                    tempVF[xPos, yPos] += Value[k] + Math.Abs(minVal); //Add the value of that reading to the cell.
-                }
-                else
-                {
-                    tempVF[xPos, yPos] += Value[k]; //Add the value of that reading to the cell.
-                }
+                tempVF[xPos, yPos] += Value[k]; //Add the value of that reading to the cell.
                 tempFF[xPos, yPos]++; //Account for how many readings have been assigned to the cell.
             }
 
@@ -2006,23 +2038,6 @@ namespace NaprstekSmithV18
             CSYS.Progress(0);
             //***********************************
 
-            //*******************SUBTRACT MIN VAL
-            if (minVal < 0)
-            {
-                //Subtract off the min val found earlier
-                for (int i = 0; i < lengthXF; i++)
-                {
-                    for (int j = 0; j < lengthYF; j++)
-                    {
-                        if (finalData.Flag[i, j] != -1)
-                        {
-                            finalData.Value[i, j] = finalData.Value[i, j] - Math.Abs(minVal);
-                        }
-                    }
-                }
-            }
-            //***********************************
-
             //*****************************OUTPUT
             CSYS.Progress(1);
             CSYS.ProgName("Writing ASCII grid file.", 0);
@@ -2032,7 +2047,7 @@ namespace NaprstekSmithV18
             if (Globals.spatialSmooth == true)
             {
                 spsm = "Sy";
-                spsmtxt = "True";                
+                spsmtxt = "True";
             }
             else
             {
@@ -2048,7 +2063,7 @@ namespace NaprstekSmithV18
             double botleftY = minY + Globals.cellSizeF / 2;
 
             //info lines
-            myfile2.WriteLine("Grid created using Tomas Naprstek and Richard S. Smith's interpolation method: Multi-trend gridding V17. Generated by Geosoft's Oasis Montaj.");
+            myfile2.WriteLine("Grid created using Tomas Naprstek and Richard S. Smith's interpolation method: Multi-trend gridding V19. Generated by Geosoft's Oasis Montaj.");
             myfile2.WriteLine("Using Geosoft's Oasis Montaj, enter the following information into: 'Grid and Image'->'Utilities'->'Import ASCII Grid...'.");
             myfile2.WriteLine("***************************************");
             myfile2.WriteLine("ASCII Grid File: " + Globals.outputFile);
