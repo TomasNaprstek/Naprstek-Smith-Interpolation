@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using System.IO;
 using System.Windows.Forms;
 
-namespace NSI_V7
+namespace NSI_V8
 {
     public static class Globals
     {
@@ -70,7 +70,7 @@ namespace NSI_V7
         }
     }
 
-    class NSI_V6
+    class NSI_V8
     {
         static void Main()
         {
@@ -357,21 +357,35 @@ namespace NSI_V7
                 }
             }
 
-            if (minVal < 0)
+            //Need to add some positive DC offset to ensure no division by 0 (if 0s exist in this dataset)
+            double dcoffset = 0;
+            if (minVal < 1)
             {
-                //once found, add this amount to each data point
+                dcoffset = 100;
+                //add this to the dataset
                 for (int i = 0; i < lengthX; i++)
                 {
                     for (int j = 0; j < lengthY; j++)
                     {
                         if (gridedData.Flag[i, j] != -1)
                         {
-                            gridedData.Value[i, j] = gridedData.Value[i, j] + Math.Abs(minVal);
+                            gridedData.Value[i, j] = gridedData.Value[i, j] + dcoffset;
+                            if (minVal < 0) //also add minvalue to get the lowest value in the dataset to 100
+                            {
+                                gridedData.Value[i, j] = gridedData.Value[i, j] + Math.Abs(minVal);
+                            }
                         }
                     }
                 }
-                maxVal = maxVal + Math.Abs(minVal); //also add the minVal to the maxVal so can use it properly later on
             }
+
+            //also add the minVal and DC offset to the maxVal so can use it properly later on
+            if (minVal < 0)
+            {
+                maxVal = maxVal + Math.Abs(minVal);
+            }
+            maxVal = maxVal + dcoffset;
+
             //***********************************
 
             //*****************ALPHA-TRIMMED MEAN
@@ -1455,6 +1469,10 @@ namespace NSI_V7
                             {
                                 tempMR = maxVal;
                             }
+                            else if (tempMR < minVal + dcoffset) //do not let the scaled data become less than the min value (+ DC offset) found in the raw data
+                            {
+                                tempMR = minVal + dcoffset;
+                            }
                             realReplace.Value[i, j] = tempMR; //replace with scaled data
                             realReplace.Flag[i, j] = 0; //not real
                         }
@@ -1529,6 +1547,27 @@ namespace NSI_V7
 
             Console.WriteLine("Finished Interpolating");
 
+            //*******************SUBTRACT MIN VAL
+            //Subtract off the min val found earlier, as well as the DC offset
+            if (minVal < 1)
+            {
+                for (int i = 0; i < lengthX; i++)
+                {
+                    for (int j = 0; j < lengthY; j++)
+                    {
+                        if (realReplace.Flag[i, j] != -1)
+                        {
+                            realReplace.Value[i, j] = realReplace.Value[i, j] - dcoffset;
+                            if (minVal < 0)
+                            {
+                                realReplace.Value[i, j] = realReplace.Value[i, j] - Math.Abs(minVal);
+                            }
+                        }
+                    }
+                }
+            }
+            //***********************************
+
             //**************************SUBSAMPLE
             Console.WriteLine("Subsampling");
             //Find the edges of the total grid area
@@ -1562,14 +1601,7 @@ namespace NSI_V7
                 tempYF[xPos, yPos] += Y[k] - ypositf[xPos, yPos]; //Add the y pos of that reading to the cell.
                 //tempXF[xPos, yPos] = ((xPos * Globals.cellSizeF) + minX + (Globals.cellSizeF / 2)); //Essentially round the position to the center of the cell
                 //tempYF[xPos, yPos] = ((yPos * Globals.cellSizeF) + minY + (Globals.cellSizeF / 2)); //Essentially round the position to the center of the cell
-                if (minVal < 0)
-                {
-                    tempVF[xPos, yPos] += Value[k] + Math.Abs(minVal); //Add the value of that reading to the cell.
-                }
-                else
-                {
-                    tempVF[xPos, yPos] += Value[k]; //Add the value of that reading to the cell.
-                }
+                tempVF[xPos, yPos] += Value[k]; //Add the value of that reading to the cell.
                 tempFF[xPos, yPos]++; //Account for how many readings have been assigned to the cell.
             }
 
@@ -1626,23 +1658,6 @@ namespace NSI_V7
             }
             //***********************************
 
-            //*******************SUBTRACT MIN VAL
-            if (minVal < 0)
-            {
-                //Subtract off the min val found earlier
-                for (int i = 0; i < lengthXF; i++)
-                {
-                    for (int j = 0; j < lengthYF; j++)
-                    {
-                        if (finalData.Flag[i, j] != -1)
-                        {
-                            finalData.Value[i, j] = finalData.Value[i, j] - Math.Abs(minVal);
-                        }
-                    }
-                }
-            }
-            //***********************************
-
             //*****************************OUTPUT
             string spsm = "";
             string spsmtxt = "";
@@ -1663,8 +1678,8 @@ namespace NSI_V7
             // lower left corner information used for cases 1 and 2:
             double botleftX = minX + Globals.cellSizeF / 2;
             double botleftY = minY + Globals.cellSizeF / 2;
-            
-            switch(Globals.outputwritebool)
+
+            switch (Globals.outputwritebool)
             {
                 case 0:
 
@@ -1678,12 +1693,12 @@ namespace NSI_V7
                     }
                     myfile2.Close();
                     break;
-                    //***********************************
-                
+                //***********************************
+
                 case 1:
 
                     //info lines
-                    myfile2.WriteLine("Grid created using Tomas Naprstek and Richard S. Smith's interpolation method: Multi-trend gridding V17. Generated by Geosoft's Oasis Montaj.");
+                    myfile2.WriteLine("Grid created using Tomas Naprstek and Richard S. Smith's interpolation method: Multi-trend gridding V19.");
                     myfile2.WriteLine("Using Geosoft's Oasis Montaj, enter the following information into: 'Grid and Image'->'Utilities'->'Import ASCII Grid...'.");
                     myfile2.WriteLine("***************************************");
                     myfile2.WriteLine("ASCII Grid File: " + outputFile);
@@ -1715,20 +1730,20 @@ namespace NSI_V7
                         myfile2.WriteLine(tempLine);
                     }
                     break;
-                    
-                case 2: 
+
+                case 2:
                     // User selected ASCII Raster format.
                     // Some QGIS versions have trouble reading the reader from the case 1 file
-                    
+
                     myfile2.WriteLine("nrows " + lengthYF);
                     myfile2.WriteLine("ncols " + lengthXF);
                     myfile2.WriteLine("xllcorner " + botleftX);
                     myfile2.WriteLine("yllcorner " + botleftY);
                     myfile2.WriteLine("cellsize " + Globals.cellSizeF);
                     myfile2.WriteLine("nodata_value -999999");
-                    
+
                     //loop for making the ascii grid file
-                    for (int i = lengthYF-1; i >= 0; i--)
+                    for (int i = lengthYF - 1; i >= 0; i--)
                     {
                         string tempLine = "";
                         for (int j = 0; j < lengthXF; j++)
@@ -1738,7 +1753,7 @@ namespace NSI_V7
                         myfile2.WriteLine(tempLine);
                     }
                     break;
-                    
+
             }
             myfile2.Close();
             //***********************************
