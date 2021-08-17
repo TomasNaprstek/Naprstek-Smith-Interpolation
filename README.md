@@ -5,7 +5,7 @@ This project holds the code for an interpolation method designed for use on aero
 
 This is the code associated with the paper, Tomas Naprstek and Richard S. Smith, (2019), "A new method for interpolating linear features in aeromagnetic data," GEOPHYSICS 84: JM15-JM24. https://library.seg.org/doi/10.1190/geo2018-0156.1
 
-If you use this interpolation method for any publications, please cite the above paper, thanks! If you have any questions or comments, feel free to email me at tomnaprstek@gmail.com
+If you use this interpolation method for any publications, please cite the above paper, thanks! If you have any questions or comments, feel free to email me at tomas.naprstek@nrc-cnrc.gc.ca
 
 %%%%%%%%
 **STAND-ALONE USAGE**
