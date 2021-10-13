@@ -1597,10 +1597,10 @@ namespace NSI_V8
                 int yPos = Convert.ToInt32(Math.Floor((Y[k] - minY) / Globals.cellSizeF));
                 xpositf[xPos, yPos] = (xPos * Globals.cellSizeF) + minX; //find bottom left position
                 ypositf[xPos, yPos] = (yPos * Globals.cellSizeF) + minY; //find bottom left position
-                tempXF[xPos, yPos] += X[k] - xpositf[xPos, yPos]; //Add the x pos of that reading to the cell.
-                tempYF[xPos, yPos] += Y[k] - ypositf[xPos, yPos]; //Add the y pos of that reading to the cell.
-                //tempXF[xPos, yPos] = ((xPos * Globals.cellSizeF) + minX + (Globals.cellSizeF / 2)); //Essentially round the position to the center of the cell
-                //tempYF[xPos, yPos] = ((yPos * Globals.cellSizeF) + minY + (Globals.cellSizeF / 2)); //Essentially round the position to the center of the cell
+                //tempXF[xPos, yPos] += X[k] - xpositf[xPos, yPos]; //Add the x pos of that reading to the cell.
+                //tempYF[xPos, yPos] += Y[k] - ypositf[xPos, yPos]; //Add the y pos of that reading to the cell.
+                tempXF[xPos, yPos] = ((xPos * Globals.cellSizeF) + minX + (Globals.cellSizeF / 2)); //Essentially round the position to the center of the cell
+                tempYF[xPos, yPos] = ((yPos * Globals.cellSizeF) + minY + (Globals.cellSizeF / 2)); //Essentially round the position to the center of the cell
                 tempVF[xPos, yPos] += Value[k]; //Add the value of that reading to the cell.
                 tempFF[xPos, yPos]++; //Account for how many readings have been assigned to the cell.
             }
@@ -1637,8 +1637,8 @@ namespace NSI_V8
                 {
                     if (finalData.Flag[i, j] >= 1) //real data cell
                     {
-                        finalData.X[i, j] = (finalData.X[i, j] / finalData.Flag[i, j]) + xpositf[i, j];
-                        finalData.Y[i, j] = (finalData.Y[i, j] / finalData.Flag[i, j]) + ypositf[i, j];
+                        //finalData.X[i, j] = (finalData.X[i, j] / finalData.Flag[i, j]) + xpositf[i, j];
+                        //finalData.Y[i, j] = (finalData.Y[i, j] / finalData.Flag[i, j]) + ypositf[i, j];
                         finalData.Value[i, j] = finalData.Value[i, j] / finalData.Flag[i, j];
                         finalData.Flag[i, j] = 1; //the position of real data vs interpolated data no longer matters, so just set all useable data to 1
                     }
