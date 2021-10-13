@@ -23,6 +23,7 @@ namespace NSI_V8
         public static double multiSmooth = 0; //smooth the multiplier grid before applying the normalization process (0 is no smoothing, 100 is max smoothing) (%)
         public static bool spatialSmooth = true; //a checkbox of whether or not to use spatial smoothing (in almost all cases, should be used)
         public static int outputwritebool = 0; //if 0, outputs in x y value. if 1, outputs in a format easy for importing into Oasis Montaj.
+        public static int realGridLocations = 0; //if 0, outputs real data in the equi-distance grid cell locations. If 1, then output the real data cells as an average position of all real data within the cell.
         //*********************
     }
 
@@ -104,6 +105,7 @@ namespace NSI_V8
                 Globals.spatialSmooth = false;
             }
             Globals.outputwritebool = Convert.ToInt32(readerConfig.ReadLine());
+            Globals.realGridLocations = Convert.ToInt32(readerConfig.ReadLine());
             readConfig.Close();
 
             //**********IMPORT GRID
@@ -1597,10 +1599,16 @@ namespace NSI_V8
                 int yPos = Convert.ToInt32(Math.Floor((Y[k] - minY) / Globals.cellSizeF));
                 xpositf[xPos, yPos] = (xPos * Globals.cellSizeF) + minX; //find bottom left position
                 ypositf[xPos, yPos] = (yPos * Globals.cellSizeF) + minY; //find bottom left position
-                //tempXF[xPos, yPos] += X[k] - xpositf[xPos, yPos]; //Add the x pos of that reading to the cell.
-                //tempYF[xPos, yPos] += Y[k] - ypositf[xPos, yPos]; //Add the y pos of that reading to the cell.
-                tempXF[xPos, yPos] = ((xPos * Globals.cellSizeF) + minX + (Globals.cellSizeF / 2)); //Essentially round the position to the center of the cell
-                tempYF[xPos, yPos] = ((yPos * Globals.cellSizeF) + minY + (Globals.cellSizeF / 2)); //Essentially round the position to the center of the cell
+                if (Globals.realGridLocations == 0)
+                {
+                    tempXF[xPos, yPos] = ((xPos * Globals.cellSizeF) + minX + (Globals.cellSizeF / 2)); //Essentially round the position to the center of the cell
+                    tempYF[xPos, yPos] = ((yPos * Globals.cellSizeF) + minY + (Globals.cellSizeF / 2)); //Essentially round the position to the center of the cell
+                }
+                else if (Globals.realGridLocations == 1)
+                {
+                    tempXF[xPos, yPos] += X[k] - xpositf[xPos, yPos]; //Add the x pos of that reading to the cell.
+                    tempYF[xPos, yPos] += Y[k] - ypositf[xPos, yPos]; //Add the y pos of that reading to the cell.
+                }
                 tempVF[xPos, yPos] += Value[k]; //Add the value of that reading to the cell.
                 tempFF[xPos, yPos]++; //Account for how many readings have been assigned to the cell.
             }
@@ -1637,8 +1645,11 @@ namespace NSI_V8
                 {
                     if (finalData.Flag[i, j] >= 1) //real data cell
                     {
-                        //finalData.X[i, j] = (finalData.X[i, j] / finalData.Flag[i, j]) + xpositf[i, j];
-                        //finalData.Y[i, j] = (finalData.Y[i, j] / finalData.Flag[i, j]) + ypositf[i, j];
+                        if (Globals.realGridLocations == 1)
+                        {
+                            finalData.X[i, j] = (finalData.X[i, j] / finalData.Flag[i, j]) + xpositf[i, j];
+                            finalData.Y[i, j] = (finalData.Y[i, j] / finalData.Flag[i, j]) + ypositf[i, j];
+                        }
                         finalData.Value[i, j] = finalData.Value[i, j] / finalData.Flag[i, j];
                         finalData.Flag[i, j] = 1; //the position of real data vs interpolated data no longer matters, so just set all useable data to 1
                     }
